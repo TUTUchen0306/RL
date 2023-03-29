@@ -179,7 +179,7 @@ def train(lr=0.01):
     ewma_reward = 0
     
     # run inifinitely many episodes
-    for i_episode in range(3000):
+    for i_episode in count(1):
         # reset environment and episode reward
         state = env.reset()
         ep_reward = 0

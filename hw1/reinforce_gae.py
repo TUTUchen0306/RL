@@ -143,7 +143,7 @@ def train(lr=0.01):
     
     ewma_reward = 0
     
-    for i_episode in range(3000):
+    for i_episode in count(1):
         state = env.reset()
         ep_reward = 0
         t = 0
