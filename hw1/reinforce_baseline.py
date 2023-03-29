@@ -125,6 +125,7 @@ class Policy(nn.Module):
         policy_losses = [] 
         value_losses = []
         returns = []
+        values = []
 
         ########## YOUR CODE HERE (8-15 lines) ##########
         for r in self.rewards[::-1]:
@@ -134,12 +135,13 @@ class Policy(nn.Module):
         baseline = 0
 
         for prob, sv in saved_actions:
-            baseline += (prob * sv)
+            values.append(sv.item())
+
+        baseline = sum(values) / len(values)
 
         returns = torch.tensor(returns).float()
         returns = (returns - returns.mean()) / returns.std()
 
-       
 
         for (log_prob, state_value), R in zip(saved_actions, returns):
             A = R - baseline
@@ -228,7 +230,7 @@ def train(lr=0.01):
         if ewma_reward > env.spec.reward_threshold:
             if not os.path.isdir("./preTrained"):
                 os.mkdir("./preTrained")
-            torch.save(model.state_dict(), './preTrained/LunarLander_baseline_{}.pth'.format(lr))
+            torch.save(model.state_dict(), './preTrained/LunarLander_baseline_avg_{}.pth'.format(lr))
             print("Solved! Running reward is now {} and "
                   "the last episode runs to {} time steps!".format(ewma_reward, t))
             break
@@ -268,4 +270,4 @@ if __name__ == '__main__':
     env.seed(random_seed)  
     torch.manual_seed(random_seed)  
     train(lr)
-    test(f'LunarLander_baseline_{lr}.pth')
+    test(f'LunarLander_baseline_avg_{lr}.pth')
