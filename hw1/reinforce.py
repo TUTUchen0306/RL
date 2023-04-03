@@ -32,7 +32,7 @@ args = parser.parse_args()
 SavedAction = namedtuple('SavedAction', ['log_prob', 'value'])
 
 # Define a tensorboard writer
-writer = SummaryWriter(f'./tb_record_1/lr_{args.lr}_hidden_{args.hs}_step_{args.step_size}_gamma_{args.gamma}')
+writer = SummaryWriter(f'./tb_record_1/lr_{args.lr}_hidden_{args.hs}_step_{args.step_size}_gamma_{args.gamma}_t')
         
 class Policy(nn.Module):
     """
@@ -134,9 +134,9 @@ class Policy(nn.Module):
         returns = torch.tensor(returns)
         returns = (returns - returns.mean()) / returns.std()
 
-        for (log_prob, state_value), R in zip(saved_actions, returns):
+        for i, ((log_prob, state_value), R) in enumerate(zip(saved_actions, returns)):
             A = R
-            policy_losses.append(-log_prob * A)
+            policy_losses.append(-log_prob * A * pow(gamma, i))
             value_losses.append(F.mse_loss(state_value, torch.tensor([R])))
 
         loss = torch.stack(policy_losses).sum() + torch.stack(value_losses).sum()
